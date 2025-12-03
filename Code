@@ -1,0 +1,137 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FILE_NAME "expenses.csv"
+
+struct Expense {
+    char date[20];
+    char category[20];
+    float amount;
+};
+
+// Function to add an expense
+ 
+void addExpense() {
+    FILE *fp = fopen(FILE_NAME, "a");
+    if (!fp) {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    struct Expense e;
+    printf("\nEnter Date (DD-MM-YYYY): ");
+    scanf("%s", e.date);
+    printf("Enter Category: ");
+    scanf("%s", e.category);
+    printf("Enter Amount: ");
+    scanf("%f", &e.amount);
+
+    fprintf(fp, "%s,%s,%.2f\n", e.date, e.category, e.amount);
+    fclose(fp);
+
+    printf("\nExpense added successfully!\n");
+}
+
+ 
+// Function to view all expenses  
+void viewExpenses() {
+    FILE *fp = fopen(FILE_NAME, "r");
+    if (!fp) {
+        printf("No expenses found!\n");
+        return;
+    }
+
+    char line[100];
+    printf("\n------ All Expenses ------\n");
+    printf("Date\t\tCategory\tAmount\n");
+    printf("-------------------------------------\n");
+
+    while (fgets(line, sizeof(line), fp)) {
+        char date[20], category[20];
+        float amount;
+
+        sscanf(line, "%[^,],%[^,],%f", date, category, &amount);
+        printf("%s\t%s\t\t%.2f\n", date, category, amount);
+    }
+
+    fclose(fp);
+}
+
+ 
+// Function to calculate total expense
+void totalExpense() {
+    FILE *fp = fopen(FILE_NAME, "r");
+    if (!fp) {
+        printf("No expenses found!\n");
+        return;
+    }
+
+    float total = 0, amount;
+    char line[100];
+
+    while (fgets(line, sizeof(line), fp)) {
+        sscanf(line, "%*[^,],%*[^,],%f", &amount);
+        total += amount;
+    }
+
+    fclose(fp);
+    printf("\nTotal Expense: %.2f\n", total);
+}
+
+
+// Function to calculate total by category
+
+void totalByCategory() {
+    FILE *fp = fopen(FILE_NAME, "r");
+    if (!fp) {
+        printf("No expenses found!\n");
+        return;
+    }
+
+    char search[20], line[100], category[20], date[20];
+    float total = 0, amount;
+
+    printf("Enter category to calculate total: ");
+    scanf("%s", search);
+
+    while (fgets(line, sizeof(line), fp)) {
+        sscanf(line, "%[^,],%[^,],%f", date, category, &amount);
+
+        if (strcmp(search, category) == 0) {
+            total += amount;
+        }
+    }
+
+    fclose(fp);
+    printf("\nTotal Expense in category '%s': %.2f\n", search, total);
+}
+
+
+// MAIN FUNCTION
+
+int main() {
+    int choice;
+
+    while (1) {
+        printf("\n====== EXPENSE TRACKER ======\n");
+        printf("1. Add Expense\n");
+        printf("2. View All Expenses\n");
+        printf("3. Calculate Total Expense\n");
+        printf("4. Calculate Total Expense by Category\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1: addExpense(); break;
+            case 2: viewExpenses(); break;
+            case 3: totalExpense(); break;
+            case 4: totalByCategory(); break;
+            case 5: exit(0);
+            default: printf("Invalid choice! Try again.\n");
+        }
+    }
+
+    return 0;
+}
